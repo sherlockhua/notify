@@ -1,0 +1,357 @@
+openapi: 3.0.3
+info:
+  contact:
+    email: apiteam@swagger.io
+  description: ""
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Petstore - OpenAPI 3.0
+  version: 1.0.11
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: https://sdk.metaphysics.io/api/v3
+tags:
+- description: 任务信息
+  externalDocs:
+    description: Find out more
+    url: http://swagger.io
+  name: task
+paths:
+  /task:
+    delete:
+      description: 获取任务
+      operationId: deleteTask
+      parameters:
+      - description: taskId
+        explode: true
+        in: query
+        name: taskId
+        required: true
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteTaskResult'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/DeleteTaskResult'
+          description: Successful operation
+        "400":
+          description: Invalid input
+        "422":
+          description: Validation exception
+      security:
+      - petstore_auth:
+        - write:task
+        - read:task
+      summary: 获取任务
+      tags:
+      - task
+    get:
+      description: 获取任务
+      operationId: getTask
+      parameters:
+      - description: taskId
+        explode: true
+        in: query
+        name: taskId
+        required: true
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTaskResult'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/GetTaskResult'
+          description: Successful operation
+        "400":
+          description: Invalid input
+        "422":
+          description: Validation exception
+      security:
+      - petstore_auth:
+        - write:task
+        - read:task
+      summary: 获取任务
+      tags:
+      - task
+    post:
+      description: 创建任务
+      operationId: createTask
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Task'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Task'
+        description: create a new task
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateTaskResult'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/CreateTaskResult'
+          description: Successful operation
+        "400":
+          description: Invalid input
+        "422":
+          description: Validation exception
+      security:
+      - petstore_auth:
+        - write:task
+        - read:task
+      summary: 创建任务
+      tags:
+      - task
+    put:
+      description: 更新任务
+      operationId: updateTask
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Task'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Task'
+        description: create a new task
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateTaskResult'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/UpdateTaskResult'
+          description: Successful operation
+        "400":
+          description: Invalid input
+        "422":
+          description: Validation exception
+      security:
+      - petstore_auth:
+        - write:task
+        - read:task
+      summary: 更新任务
+      tags:
+      - task
+  /task/list:
+    get:
+      description: get all task list
+      operationId: getTaskList
+      parameters:
+      - description: offset
+        explode: true
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          type: integer
+        style: form
+      - description: size
+        explode: true
+        in: query
+        name: size
+        required: false
+        schema:
+          default: 10
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTaskListResult'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/GetTaskListResult'
+          description: successful operation
+        "400":
+          description: Invalid status value
+      security:
+      - petstore_auth:
+        - write:record
+        - read:record
+      summary: get all task list
+      tags:
+      - task
+components:
+  schemas:
+    CreateTaskResult:
+      example:
+        code: 10
+        message: message
+        taskId: taskId
+      properties:
+        code:
+          example: 10
+          format: int64
+          type: integer
+        message:
+          example: message
+          type: string
+        taskId:
+          type: string
+      type: object
+    GetTaskListResult:
+      example:
+        code: 0
+        message: message
+        tasks:
+        - taskDesc: taskDesc
+          taskType: 0
+          notifyBeforeTime: 1
+          notifyType: 6
+          createTime: createTime
+          notifyTime: notifyTime
+          taskName: taskName
+          taskId: taskId
+        - taskDesc: taskDesc
+          taskType: 0
+          notifyBeforeTime: 1
+          notifyType: 6
+          createTime: createTime
+          notifyTime: notifyTime
+          taskName: taskName
+          taskId: taskId
+      properties:
+        code:
+          example: 0
+          format: int64
+          type: integer
+        message:
+          example: message
+          type: string
+        tasks:
+          items:
+            $ref: '#/components/schemas/Task'
+          type: array
+          xml:
+            name: record
+            wrapped: true
+      type: object
+    GetTaskResult:
+      example:
+        code: 0
+        task:
+          taskDesc: taskDesc
+          taskType: 0
+          notifyBeforeTime: 1
+          notifyType: 6
+          createTime: createTime
+          notifyTime: notifyTime
+          taskName: taskName
+          taskId: taskId
+        message: message
+      properties:
+        code:
+          example: 0
+          format: int64
+          type: integer
+        message:
+          example: message
+          type: string
+        task:
+          $ref: '#/components/schemas/Task'
+      type: object
+    DeleteTaskResult:
+      example:
+        code: 0
+        message: message
+      properties:
+        code:
+          example: 0
+          format: int64
+          type: integer
+        message:
+          example: message
+          type: string
+      type: object
+    UpdateTaskResult:
+      example:
+        code: 0
+        message: message
+      properties:
+        code:
+          example: 0
+          format: int64
+          type: integer
+        message:
+          example: message
+          type: string
+      type: object
+    Task:
+      example:
+        taskDesc: taskDesc
+        taskType: 0
+        notifyBeforeTime: 1
+        notifyType: 6
+        createTime: createTime
+        notifyTime: notifyTime
+        taskName: taskName
+        taskId: taskId
+      properties:
+        taskId:
+          type: string
+        taskName:
+          type: string
+        taskDesc:
+          type: string
+        createTime:
+          type: string
+        taskType:
+          type: integer
+        notifyType:
+          type: integer
+        notifyTime:
+          type: string
+        notifyBeforeTime:
+          type: integer
+      required:
+      - birthday
+      - username
+      type: object
+      xml:
+        name: task
+  securitySchemes:
+    petstore_auth:
+      flows:
+        implicit:
+          authorizationUrl: https://petstore3.swagger.io/oauth/authorize
+          scopes:
+            write:pets: modify pets in your account
+            read:pets: read your pets
+      type: oauth2
+    api_key:
+      in: header
+      name: api_key
+      type: apiKey
