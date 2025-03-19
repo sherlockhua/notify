@@ -278,6 +278,8 @@ components:
           type: string
         createTime:
           type: string
+        taskStatus:
+          type: integer
         taskType:
           type: integer
         notifyType:
