@@ -2,6 +2,7 @@ package task
 
 import (
 	"context"
+	"notify/internal/common"
 
 	"github.com/sherlockhua/koala/logs"
 )
@@ -26,6 +27,7 @@ func (s *TaskService) UpdateTask(ctx context.Context, userId int64, task *Task) 
 
 func (s *TaskService) CreateTask(ctx context.Context, userId int64, task *Task) error {
 	logs.Debugf(ctx, "creating task, userId:%d, task:%+v", userId, task)
+	task.TaskStatus = common.TaskStatusNotStart
 	return s.taskRepo.CreateTask(ctx, userId, task)
 }
 

@@ -2,32 +2,82 @@ package repository
 
 import (
 	"context"
+	"notify/internal/common"
+	"time"
 
 	"github.com/sherlockhua/koala/logs"
-	"github.com/sherlockhua/notify/internal/domain/task"
 	"gorm.io/gorm"
+	"notify/internal/domain/task"
 )
 
-type TaskRepository struct {
+type TaskRepositoryImpl struct {
 	db *gorm.DB //+
 }
-
-func NewTaskRepository(db *gorm.DB) *TaskRepository {
-	return &TaskRepository{db: db}
+type TaskModel struct {
+	TaskID           string            `gorm:"primaryKey;column:task_id" json:"task_id"`
+	TaskName         string            `gorm:"column:task_name" json:"task_name"`
+	TaskDesc         string            `gorm:"column:task_desc" json:"task_desc"`
+	CreateTime       time.Time         `gorm:"column:create_time;default:CURRENT_TIMESTAMP" json:"create_time"`
+	TaskType         int               `gorm:"column:task_type" json:"task_type"`
+	NotifyType       int               `gorm:"column:notify_type" json:"notify_type"`
+	NotifyTime       time.Time         `gorm:"column:notify_time" json:"notify_time"`
+	NotifyBeforeTime int               `gorm:"column:notify_before_time" json:"notify_before_time"` // 单位秒
+	TaskStatus       common.TaskStatus `gorm:"column:task_status;type:tinyint" json:"task_status"`
 }
 
-func (r *TaskRepository) GetTask(ctx context.Context, userId int64, taskId int64) (*task.Task, error) { //-
-	task := &task.Task{}
-	err := r.db.Where("id = ? and user_id = ?", taskId, userId).First(task).Error
+// TableName 指定表名
+func (TaskModel) TableName() string {
+	return "tasks"
+}
+
+func ToDbModel(task *task.Task) *TaskModel {
+	return &TaskModel{
+		TaskID:           task.TaskID,
+		TaskName:         task.TaskName,
+		TaskDesc:         task.TaskDesc,
+		CreateTime:       task.CreateTime,
+		TaskType:         task.TaskType,
+		NotifyType:       task.NotifyType,
+		NotifyTime:       task.NotifyTime,
+		NotifyBeforeTime: task.NotifyBeforeTime,
+		TaskStatus:       task.TaskStatus,
+	}
+}
+
+// ToBizModel 转换为业务模型（假设需要隐藏某些字段）
+func (t *TaskModel) ToBizModel() *task.Task {
+	return &task.Task{
+		TaskID:           t.TaskID,
+		TaskName:         t.TaskName,
+		TaskDesc:         t.TaskDesc,
+		TaskType:         t.TaskType,
+		TaskStatus:       t.TaskStatus,
+		NotifyType:       t.NotifyType,
+		NotifyTime:       t.NotifyTime,
+		CreateTime:       t.CreateTime,
+		NotifyBeforeTime: t.NotifyBeforeTime,
+	}
+}
+
+func NewTaskRepository(db *gorm.DB) task.TaskRepository {
+	return &TaskRepositoryImpl{db: db}
+}
+
+func (r *TaskRepositoryImpl) GetTask(ctx context.Context, userId int64, taskId int64) (*task.Task, error) { //-
+	taskModel := &TaskModel{}
+
+	err := r.db.Where("task_id = ? and user_id = ?", taskId, userId).First(task).Error
 	if err != nil {
 		logs.Errorf(ctx, "get task failed, err:%v", err)
 		return nil, err
 	}
-	return task, nil
+
+	return taskModel.ToBizModel(), nil
 }
 
-func (r *TaskRepository) UpdateTask(ctx context.Context, userId int64, taskId int64, task *task.Task) error {
-	err := r.db.Model(task).Where("id = ? and user_id = ?", taskId, userId).Updates(task).Error
+func (r *TaskRepositoryImpl) UpdateTask(ctx context.Context, userId int64, task *task.Task) error {
+	taskModel := ToDbModel(task)
+	err := r.db.Model(task).Where("task_id = ? and user_id = ?", task.TaskID, userId).Updates(taskModel).Error
 	if err != nil {
 		logs.Errorf(ctx, "update task failed, err:%v", err)
 		return err
@@ -35,8 +85,10 @@ func (r *TaskRepository) UpdateTask(ctx context.Context, userId int64, taskId in
 	return nil
 }
 
-func (r *TaskRepository) CreateTask(ctx context.Context, userId int64, task *task.Task) error {
-	err := r.db.Create(task).Error
+func (r *TaskRepositoryImpl) CreateTask(ctx context.Context, userId int64, task *task.Task) error {
+
+	taskModel := ToDbModel(task)
+	err := r.db.Create(taskModel).Error
 	if err != nil {
 		logs.Errorf(ctx, "create task failed, err:%v", err)
 		return err
@@ -44,8 +96,8 @@ func (r *TaskRepository) CreateTask(ctx context.Context, userId int64, task *tas
 	return nil
 }
 
-func (r *TaskRepository) DeleteTask(ctx context.Context, userId int64, taskId int64) error {
-	err := r.db.Where("id = ? and user_id = ?", taskId, userId).Delete(&task.Task{}).Error
+func (r *TaskRepositoryImpl) DeleteTask(ctx context.Context, userId int64, taskId int64) error {
+	err := r.db.Where("task_id = ? and user_id = ?", taskId, userId).Delete(&TaskModel{}).Error
 	if err != nil {
 		logs.Errorf(ctx, "delete task failed, err:%v", err)
 		return err
@@ -53,12 +105,18 @@ func (r *TaskRepository) DeleteTask(ctx context.Context, userId int64, taskId in
 	return nil
 }
 
-func (r *TaskRepository) GetTaskList(ctx context.Context, userId int64, offset, size int32) ([]*task.Task, error) {
-	tasks := make([]*task.Task, 0)
-	err := r.db.Where("user_id = ?", userId).Offset(int(offset)).Limit(int(size)).Find(&tasks).Error
+func (r *TaskRepositoryImpl) GetTaskList(ctx context.Context, userId int64, offset, size int32) ([]*task.Task, error) {
+
+	taskModels := make([]*TaskModel, 0)
+	err := r.db.Where("user_id = ?", userId).Offset(int(offset)).Limit(int(size)).Find(&taskModels).Error
 	if err != nil {
 		logs.Errorf(ctx, "get task list failed, err:%v", err)
 		return nil, err
+	}
+
+	tasks := make([]*task.Task, 0, len(taskModels))
+	for _, taskModel := range taskModels {
+		tasks = append(tasks, taskModel.ToBizModel())
 	}
 	return tasks, nil
 }

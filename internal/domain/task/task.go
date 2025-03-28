@@ -1,9 +1,12 @@
 package task
 
-import "time"
+import (
+	"notify/internal/common"
+	"time"
+)
 
 type Task struct {
-	TaskId     string    `json:"task_id"`
+	TaskID     string    `json:"task_id"`
 	TaskName   string    `json:"task_name"`
 	TaskDesc   string    `json:"task_desc"`
 	CreateTime time.Time `json:"create_time"`
@@ -11,6 +14,6 @@ type Task struct {
 	NotifyType int       `json:"notify_type"`
 	NotifyTime time.Time `json:"notify_time"`
 	//单位是秒
-	NotifyBeforeTime int    `json:"notify_before_time"`
-	TaskStatus       string `json:"task_status"`
+	NotifyBeforeTime int               `json:"notify_before_time"`
+	TaskStatus       common.TaskStatus `json:"task_status"`
 }
