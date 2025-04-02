@@ -1,4 +1,4 @@
-package task
+package entity
 
 import (
 	"notify/internal/common"
@@ -6,7 +6,7 @@ import (
 )
 
 type Task struct {
-	TaskID     string    `json:"task_id"`
+	TaskID     int64     `json:"task_id"`
 	TaskName   string    `json:"task_name"`
 	TaskDesc   string    `json:"task_desc"`
 	CreateTime time.Time `json:"create_time"`

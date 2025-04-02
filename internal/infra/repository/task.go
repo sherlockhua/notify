@@ -3,18 +3,20 @@ package repository
 import (
 	"context"
 	"notify/internal/common"
+	"notify/internal/domain/entity"
+	"notify/internal/domain/repository"
 	"time"
 
 	"github.com/sherlockhua/koala/logs"
 	"gorm.io/gorm"
-	"notify/internal/domain/task"
 )
 
 type TaskRepositoryImpl struct {
 	db *gorm.DB //+
 }
 type TaskModel struct {
-	TaskID           string            `gorm:"primaryKey;column:task_id" json:"task_id"`
+	ID               int64             `gorm:"column:id" json:"id"`
+	TaskID           int64             `gorm:"column:task_id" json:"task_id"`
 	TaskName         string            `gorm:"column:task_name" json:"task_name"`
 	TaskDesc         string            `gorm:"column:task_desc" json:"task_desc"`
 	CreateTime       time.Time         `gorm:"column:create_time;default:CURRENT_TIMESTAMP" json:"create_time"`
@@ -30,7 +32,7 @@ func (TaskModel) TableName() string {
 	return "tasks"
 }
 
-func ToDbModel(task *task.Task) *TaskModel {
+func ToDbModel(task *entity.Task) *TaskModel {
 	return &TaskModel{
 		TaskID:           task.TaskID,
 		TaskName:         task.TaskName,
@@ -45,8 +47,8 @@ func ToDbModel(task *task.Task) *TaskModel {
 }
 
 // ToBizModel 转换为业务模型（假设需要隐藏某些字段）
-func (t *TaskModel) ToBizModel() *task.Task {
-	return &task.Task{
+func (t *TaskModel) ToBizModel() *entity.Task {
+	return &entity.Task{
 		TaskID:           t.TaskID,
 		TaskName:         t.TaskName,
 		TaskDesc:         t.TaskDesc,
@@ -59,11 +61,11 @@ func (t *TaskModel) ToBizModel() *task.Task {
 	}
 }
 
-func NewTaskRepository(db *gorm.DB) task.TaskRepository {
+func NewTaskRepository(db *gorm.DB) repository.TaskRepository {
 	return &TaskRepositoryImpl{db: db}
 }
 
-func (r *TaskRepositoryImpl) GetTask(ctx context.Context, userId int64, taskId int64) (*task.Task, error) { //-
+func (r *TaskRepositoryImpl) GetTask(ctx context.Context, userId int64, taskId int64) (*entity.Task, error) { //-
 	taskModel := &TaskModel{}
 
 	err := r.db.Where("task_id = ? and user_id = ?", taskId, userId).First(task).Error
@@ -75,7 +77,7 @@ func (r *TaskRepositoryImpl) GetTask(ctx context.Context, userId int64, taskId i
 	return taskModel.ToBizModel(), nil
 }
 
-func (r *TaskRepositoryImpl) UpdateTask(ctx context.Context, userId int64, task *task.Task) error {
+func (r *TaskRepositoryImpl) UpdateTask(ctx context.Context, userId int64, task *entity.Task) error {
 	taskModel := ToDbModel(task)
 	err := r.db.Model(task).Where("task_id = ? and user_id = ?", task.TaskID, userId).Updates(taskModel).Error
 	if err != nil {
@@ -85,7 +87,7 @@ func (r *TaskRepositoryImpl) UpdateTask(ctx context.Context, userId int64, task 
 	return nil
 }
 
-func (r *TaskRepositoryImpl) CreateTask(ctx context.Context, userId int64, task *task.Task) error {
+func (r *TaskRepositoryImpl) CreateTask(ctx context.Context, userId int64, task *entity.Task) error {
 
 	taskModel := ToDbModel(task)
 	err := r.db.Create(taskModel).Error
@@ -105,7 +107,7 @@ func (r *TaskRepositoryImpl) DeleteTask(ctx context.Context, userId int64, taskI
 	return nil
 }
 
-func (r *TaskRepositoryImpl) GetTaskList(ctx context.Context, userId int64, offset, size int32) ([]*task.Task, error) {
+func (r *TaskRepositoryImpl) GetTaskList(ctx context.Context, userId int64, offset, size int32) ([]*entity.Task, error) {
 
 	taskModels := make([]*TaskModel, 0)
 	err := r.db.Where("user_id = ?", userId).Offset(int(offset)).Limit(int(size)).Find(&taskModels).Error
@@ -114,7 +116,7 @@ func (r *TaskRepositoryImpl) GetTaskList(ctx context.Context, userId int64, offs
 		return nil, err
 	}
 
-	tasks := make([]*task.Task, 0, len(taskModels))
+	tasks := make([]*entity.Task, 0, len(taskModels))
 	for _, taskModel := range taskModels {
 		tasks = append(tasks, taskModel.ToBizModel())
 	}
