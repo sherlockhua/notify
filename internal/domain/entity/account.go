@@ -12,7 +12,6 @@ type Account struct {
 	CreateTime     time.Time            `json:"create_time"`
 	AccountType    int                  `json:"account_type"`
 	AccountStatus  common.AccountStatus `json:"account_status"`
-	AccountBalance int64                `json:"account_balance"`
-	Currency       string               `json:"currency"`
+	AccountBalance Money                `json:"account_balance"`
 	UserID         int64                `json:"user_id"`
 }

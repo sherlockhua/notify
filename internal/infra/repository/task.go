@@ -23,12 +23,13 @@ type TaskModel struct {
 	TaskType         int               `gorm:"column:task_type" json:"task_type"`
 	NotifyType       int               `gorm:"column:notify_type" json:"notify_type"`
 	NotifyTime       time.Time         `gorm:"column:notify_time" json:"notify_time"`
-	NotifyBeforeTime int               `gorm:"column:notify_before_time" json:"notify_before_time"` // 单位秒
+	NotifyBeforeTime time.Time         `gorm:"column:notify_before_time" json:"notify_before_time"` // 单位秒
 	TaskStatus       common.TaskStatus `gorm:"column:task_status;type:tinyint" json:"task_status"`
+	StrategyData     string            `gorm:"column:strategy_data" json:"strategy_data"` // 策略数据
 }
 
 // TableName 指定表名
-func (TaskModel) TableName() string {
+func (*TaskModel) TableName() string {
 	return "tasks"
 }
 
@@ -38,7 +39,7 @@ func ToDbModel(task *entity.Task) *TaskModel {
 		TaskName:         task.TaskName,
 		TaskDesc:         task.TaskDesc,
 		CreateTime:       task.CreateTime,
-		TaskType:         task.TaskType,
+		TaskType:         int(task.TaskType),
 		NotifyType:       task.NotifyType,
 		NotifyTime:       task.NotifyTime,
 		NotifyBeforeTime: task.NotifyBeforeTime,

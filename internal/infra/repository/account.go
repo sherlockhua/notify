@@ -16,19 +16,19 @@ type AccountRepositoryImpl struct {
 }
 type AccountModel struct {
 	ID             int64                `gorm:"column:id" json:"id"`
-	AccountID      int64                `gorm:"column:task_id" json:"account_id"`
-	AccountName    string               `json:"account_name"`
-	AccountDesc    string               `json:"account_desc"`
-	CreateTime     time.Time            `json:"create_time"`
-	AccountType    int                  `json:"account_type"`
-	AccountStatus  common.AccountStatus `json:"account_status"`
-	AccountBalance int64                `json:"account_balance"`
-	Currency       string               `json:"currency"`
-	UserID         int64                `json:"user_id"`
+	AccountID      int64                `gorm:"column:account_id" json:"account_id"`
+	AccountName    string               `gorm:"column:account_name"  json:"account_name"`
+	AccountDesc    string               `gorm:"column:account_desc" json:"account_desc"`
+	CreateTime     time.Time            `gorm:"column:create_time" json:"create_time"`
+	AccountType    int                  `gorm:"column:account_type" json:"account_type"`
+	AccountStatus  common.AccountStatus `gorm:"column:account_status" json:"account_status"`
+	AccountBalance int64                `gorm:"column:account_balance" json:"account_balance"`
+	Currency       string               `gorm:"column:currency" json:"currency"`
+	UserID         int64                `gorm:"column:user_id" json:"user_id"`
 }
 
 // TableName 指定表名
-func (AccountModel) TableName() string {
+func (*AccountModel) TableName() string {
 	return "account"
 }
 
@@ -40,8 +40,8 @@ func ToAccountDbModel(account *entity.Account) *AccountModel {
 		CreateTime:     account.CreateTime,
 		AccountType:    account.AccountType,
 		AccountStatus:  account.AccountStatus,
-		AccountBalance: account.AccountBalance,
-		Currency:       account.Currency,
+		AccountBalance: account.AccountBalance.Amount,
+		Currency:       account.AccountBalance.Currency,
 		UserID:         account.UserID,
 	}
 }
@@ -49,15 +49,17 @@ func ToAccountDbModel(account *entity.Account) *AccountModel {
 // ToBizModel 转换为业务模型（假设需要隐藏某些字段）
 func (t *AccountModel) ToBizModel() *entity.Account {
 	return &entity.Account{
-		AccountID:      t.AccountID,
-		AccountName:    t.AccountName,
-		AccountDesc:    t.AccountDesc,
-		CreateTime:     t.CreateTime,
-		AccountType:    t.AccountType,
-		AccountStatus:  t.AccountStatus,
-		AccountBalance: t.AccountBalance,
-		Currency:       t.Currency,
-		UserID:         t.UserID,
+		AccountID:     t.AccountID,
+		AccountName:   t.AccountName,
+		AccountDesc:   t.AccountDesc,
+		CreateTime:    t.CreateTime,
+		AccountType:   t.AccountType,
+		AccountStatus: t.AccountStatus,
+		AccountBalance: entity.Money{
+			Amount:   t.AccountBalance,
+			Currency: t.Currency,
+		},
+		UserID: t.UserID,
 	}
 }
 
