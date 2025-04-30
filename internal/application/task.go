@@ -3,7 +3,6 @@ package application
 import (
 	"context"
 	"github.com/sherlockhua/koala/logs"
-	"notify/internal/common"
 	"notify/internal/domain/entity"
 	"notify/internal/domain/service"
 )
@@ -17,34 +16,20 @@ type AppalitionImpl struct {
 	ctx            context.Context
 	taskService    service.TaskService
 	accountService service.AccountService
+	taskRunnerList []TaskRunner
 }
 
-func NewAppalition(ctx context.Context, taskService service.TaskService) Appalition {
-	return &AppalitionImpl{
+func NewAppalition(ctx context.Context, taskService service.TaskService, accountService service.AccountService) Appalition {
+	inst := &AppalitionImpl{
 		ctx:         ctx,
 		taskService: taskService,
 	}
+	inst.taskRunnerList = append(inst.taskRunnerList, NewTaskRunner(ctx, taskService, accountService))
+	return inst
 }
 
 func (a *AppalitionImpl) CreateTask(ctx context.Context, userId int64, task *entity.Task) error {
-
-	//先判断是否有余额
-	account, err := a.accountService.GetAccount(ctx, userId)
-	if err != nil {
-		logs.Errorf(ctx, "get account failed, err:%v, user_id:%v", err, userId)
-		return err
-	}
-
-	if account.AccountStatus == common.AccountStatusDisable {
-		logs.Infof(ctx, "account status is disable, user_id:%v", userId)
-		return common.ErrAccountStatusDisable
-	}
-
-	if account.AccountBalance.Amount <= 0 {
-		logs.Infof(ctx, "account balance is not enough, user_id:%v, balance:%v", userId, account.AccountBalance.Amount)
-		return common.ErrAccountBalanceNotEnough
-	}
-	err = a.taskService.CreateTask(a.ctx, userId, task)
+	err := a.taskService.CreateTask(a.ctx, userId, task)
 	if err != nil {
 		logs.Errorf(ctx, "create task failed, err:%v, user_id:%v", err, userId)
 		return err
@@ -58,7 +43,9 @@ func (a *AppalitionImpl) Start(ctx context.Context) {
 		if e := recover(); e != nil {
 			logs.Errorf(ctx, "start task failed, err:%v", e)
 		}
-
+		for _, runner := range a.taskRunnerList {
+			runner.Start(ctx)
+		}
 	}()
 
 }

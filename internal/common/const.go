@@ -3,10 +3,10 @@ package common
 type TaskStatus int
 
 const (
-	TaskStatusNotStart TaskStatus = 1
-	TaskStatusRunning  TaskStatus = 2
-	TaskStatusFinished TaskStatus = 3
-	TaskStatusCannel   TaskStatus = 4
+	TaskStatusRunning  TaskStatus = 1
+	TaskStatusFinished TaskStatus = 2
+	TaskStatusCannel   TaskStatus = 3
+	TaskStatusPaused   TaskStatus = 4
 )
 
 type TaskType int
@@ -30,6 +30,7 @@ const (
 type NotifyTimeResult int
 
 const (
+	NotifyTimeResultUnknown         NotifyTimeResult = 0
 	NotifyTimeResultBeforeTimeReady NotifyTimeResult = 1
 	NotifyTimeResultTimeReady       NotifyTimeResult = 2
 	NotifyTimeResultTimeNotReady    NotifyTimeResult = 3

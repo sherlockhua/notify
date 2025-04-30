@@ -35,13 +35,12 @@ func (f *taskStrategyFactory) CreateTaskStrategy(ctx context.Context, taskType c
 	case common.TaskTypeDayCycle:
 		return NewDayCycleStrategy(strategyData, f.timeUtil)
 	case common.TaskTypeWeekCycle:
-		//return NewWeekCycleStrategy(task.StrategyData), nil
+		return NewWeekCycleStrategy(strategyData, f.timeUtil)
 	case common.TaskTypeMonthCycle:
-		//return NewMonthCycleStrategy(task.StrategyData), nil
+		return NewMonthCycleStrategy(strategyData, f.timeUtil)
 	case common.TaskTypeYearCycle:
-		//return NewYearCycleStrategy(task.StrategyData), nil
+		return NewYearCycleStrategy(strategyData, f.timeUtil)
 	default:
-		return nil, common.ErrInvalidTaskType
+		return nil, fmt.Errorf("unsupported task type: %v", taskType)
 	}
-	return nil, fmt.Errorf("unsupported task type: %v", taskType)
 }

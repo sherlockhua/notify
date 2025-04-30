@@ -33,6 +33,7 @@ func TestWeekCycleStrategy_IsTimeToNotify(t *testing.T) {
 			data: `{
 				"interval_weeks": 1,
 				"start_notify_times": ["14:00:00"],
+				"start_notify_week":1,
 				"weekdays": [0, 1, 2, 3, 4, 5, 6],
 				"notify_before_seconds": 300
 			}`,
@@ -43,6 +44,7 @@ func TestWeekCycleStrategy_IsTimeToNotify(t *testing.T) {
 			data: `{
 				"interval_weeks": 1,
 				"start_notify_times": ["14:00:00"],
+				"start_notify_week":1,
 				"weekdays": [0, 1, 2, 3, 4, 5, 6],
 				"notify_before_seconds": 300
 			}`,
@@ -53,6 +55,7 @@ func TestWeekCycleStrategy_IsTimeToNotify(t *testing.T) {
 			data: `{
 				"interval_weeks": 1,
 				"start_notify_times": ["14:00:00"],
+				"start_notify_week":1,
 				"weekdays": [0, 1, 2, 3, 4, 5, 6],
 				"notify_before_seconds": 300
 			}`,
@@ -61,62 +64,35 @@ func TestWeekCycleStrategy_IsTimeToNotify(t *testing.T) {
 		},
 		{
 			data: `{
-				"interval_weeks": 1,
+				"interval_weeks": 2,
 				"start_notify_times": ["14:00:00"],
+				"start_notify_week":2,
 				"weekdays": [0, 1, 2, 3, 4, 5, 6],
 				"notify_before_seconds": 300
 			}`,
-			currentTimeStr: "2025-04-16 14:00:00 +0000 UTC",
+			currentTimeStr: "2025-04-15 14:00:00 +0000 UTC",
 			result:         common.NotifyTimeResultTimeReady,
 		},
 		{
 			data: `{
-				"interval_days": 2,
-				"start_notify_time": ["14:00:00"],
-				"start_notify_date": "2025-04-14",
-				"notify_before_seconds": 300
-			}`,
-			currentTimeStr: "2025-04-16 13:55:00 +0000 UTC",
-			result:         common.NotifyTimeResultBeforeTimeReady,
-		},
-		{
-			data: `{
-				"interval_days": 2,
-				"start_notify_time": ["14:00:00"],
-				"start_notify_date": "2025-04-14",
+				"interval_weeks": 2,
+				"start_notify_times": ["14:00:00"],
+				"start_notify_week":2,
+				"weekdays": [0, 1, 2, 3, 4, 5, 6],
 				"notify_before_seconds": 300
 			}`,
 			currentTimeStr: "2025-04-15 14:00:00 +0000 UTC",
-			result:         common.NotifyTimeResultTimeNotReady,
-		},
-		{
-			data: `{
-				"interval_days": 2,
-				"start_notify_time": ["8:00:00","12:00:00", "18:00:00"],
-				"start_notify_date": "2025-04-14",
-				"notify_before_seconds": 300
-			}`,
-			currentTimeStr: "2025-04-16 8:00:00 +0000 UTC",
 			result:         common.NotifyTimeResultTimeReady,
 		},
 		{
 			data: `{
-				"interval_days": 2,
-				"start_notify_time": ["8:00:00","12:00:00", "18:00:00"],
-				"start_notify_date": "2025-04-14",
+				"interval_weeks": 2,
+				"start_notify_times": ["14:00:00"],
+				"start_notify_week":2,
+				"weekdays": [0, 1, 2, 3, 4, 5, 6],
 				"notify_before_seconds": 300
 			}`,
-			currentTimeStr: "2025-04-16 12:00:00 +0000 UTC",
-			result:         common.NotifyTimeResultTimeReady,
-		},
-		{
-			data: `{
-				"interval_days": 2,
-				"start_notify_time": ["8:00:00","12:00:00", "18:00:00"],
-				"start_notify_date": "2025-04-14",
-				"notify_before_seconds": 300
-			}`,
-			currentTimeStr: "2025-04-16 18:00:00 +0000 UTC",
+			currentTimeStr: "2025-04-15 14:00:00 +0000 UTC",
 			result:         common.NotifyTimeResultTimeReady,
 		},
 	}
@@ -128,9 +104,9 @@ func TestWeekCycleStrategy_IsTimeToNotify(t *testing.T) {
 
 		timeUtil := common.NewMockTimeUtil(ctrl)
 		timeUtil.EXPECT().GetCurrentTime().Return(one.currentTime).AnyTimes()
-		dayCycleStrategy, err := NewDayCycleStrategy(one.data, timeUtil)
+		weekCycleStrategy, err := NewWeekCycleStrategy(one.data, timeUtil)
 		assert.Equal(t, nil, err)
-		result := dayCycleStrategy.IsTimeToNotify(context.Background())
+		result := weekCycleStrategy.IsTimeToNotify(context.Background())
 		assert.Equal(t, one.result, result, one)
 	}
 }

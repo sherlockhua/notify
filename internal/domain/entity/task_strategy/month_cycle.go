@@ -8,17 +8,17 @@ import (
 	"time"
 )
 
-type WeekCycleStrategy struct {
-	IntervalWeeks       int            `json:"interval_weeks"`
-	Weekdays            []time.Weekday `json:"weekdays"`
-	StartNotifyTimes    []string       `json:"start_notify_times"`
-	StartNotifyWeek     int            `json:"start_notify_week"`
-	NotifyBeforeSeconds int            `json:"notify_before_seconds"`
+type MonthCycleStrategy struct {
+	IntervalMonths      int      `json:"interval_months"`
+	Monthdays           []int    `json:"month_days"`
+	StartNotifyTimes    []string `json:"start_notify_times"`
+	StartNotifyMonth    int      `json:"start_notify_Month"`
+	NotifyBeforeSeconds int      `json:"notify_before_seconds"`
 	timeUtil            common.TimeUtil
 }
 
-func NewWeekCycleStrategy(data string, timeUtil common.TimeUtil) (TaskStrategy, error) {
-	inst := &WeekCycleStrategy{
+func NewMonthCycleStrategy(data string, timeUtil common.TimeUtil) (TaskStrategy, error) {
+	inst := &MonthCycleStrategy{
 		timeUtil: timeUtil,
 	}
 	err := json.Unmarshal([]byte(data), inst)
@@ -28,24 +28,24 @@ func NewWeekCycleStrategy(data string, timeUtil common.TimeUtil) (TaskStrategy, 
 
 	return inst, nil
 }
-func (s *WeekCycleStrategy) match(slice []time.Weekday, item time.Weekday, thisWeek int) bool {
-	if (thisWeek-s.StartNotifyWeek)%s.IntervalWeeks != 0 {
+func (s *MonthCycleStrategy) match(monthDays []int, monthDay int, thisMonth time.Month) bool {
+	if (int(thisMonth)-int(s.StartNotifyMonth))%s.IntervalMonths != 0 {
 		return false
 	}
-	for _, s := range slice {
-		if s == item {
+	for _, s := range monthDays {
+		if s == monthDay {
 			return true
 		}
 	}
 	return false
 }
 
-func (s *WeekCycleStrategy) IsTimeToNotify(ctx context.Context) common.NotifyTimeResult {
+func (s *MonthCycleStrategy) IsTimeToNotify(ctx context.Context) common.NotifyTimeResult {
 	currentTime := s.timeUtil.GetCurrentTime().UTC()
-	weekDay := currentTime.Weekday()
-	_, thisWeek := currentTime.ISOWeek()
+	monthDay := currentTime.Day()
+	thisMonth := currentTime.Month()
 
-	if !s.match(s.Weekdays, weekDay, thisWeek) {
+	if !s.match(s.Monthdays, monthDay, thisMonth) {
 		return common.NotifyTimeResultTimeNotReady
 	}
 

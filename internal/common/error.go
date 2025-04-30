@@ -7,4 +7,5 @@ var (
 	ErrAccountNotFound         = errors.New("account not found")
 	ErrAccountStatusDisable    = errors.New("account status disable")
 	ErrInvalidTaskType         = errors.New("invalid task type")
+	ErrInvalidColumnName       = errors.New("invalid column name")
 )
