@@ -50,3 +50,17 @@ const (
 	CycleTypeWeek  CycleType = 2
 	CycleTypeMonth CycleType = 3
 )
+
+type TemplateType int
+
+const (
+	TemplateTypeHoliday  TemplateType = 1
+	TemplateTypeMedicine TemplateType = 2
+)
+
+type TemplateStatus int
+
+const (
+	TemplateStatusNormal TemplateStatus = 1
+	TemplateStatusDelete TemplateStatus = 2
+)

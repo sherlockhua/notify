@@ -1,5 +1,6 @@
 package application
 
+/*
 import (
 	"context"
 	"log"
@@ -49,3 +50,4 @@ func (a *SubscriptionApplication) ProcessNewSubscription(
 
 	return subscription, nil
 }
+*/

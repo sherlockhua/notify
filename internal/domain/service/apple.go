@@ -1,5 +1,6 @@
 package service
 
+/*
 import (
 	"context"
 	"errors"
@@ -51,3 +52,4 @@ func (s *VerificationService) VerifyAndCreateSubscription(
 	subscriptionID := model.SubscriptionID(receipt.transactionID)
 	return model.NewSubscription(subscriptionID, userID, product, *receipt)
 }
+*/

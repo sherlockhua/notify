@@ -8,30 +8,31 @@ import (
 )
 
 type TaskTemplate struct {
-	TemplateName  string               `json:"template_name"`
-	TaskDesc      string               `json:"task_desc"`
-	CreateTime    time.Time            `json:"create_time"`
-	UpdateTime    time.Time            `json:"update_time"`
-	TaskType      common.TaskType      `json:"task_type"`
-	NotifyChannel common.NotifyChannel `json:"notify_channel"`
-	TaskStatus    common.TaskStatus    `json:"task_status"`
-	StrategyData  string               `json:"strategy_data"`
+	TemplateID    int64                 `json:"template_id"`
+	TemplateName  string                `json:"template_name"`
+	TaskDesc      string                `json:"template_desc"`
+	TaskType      common.TaskType       `json:"task_type"`
+	NotifyChannel common.NotifyChannel  `json:"notify_channel"`
+	Status        common.TemplateStatus `json:"template_status"`
+	StrategyData  string                `json:"strategy_data"`
+	CreateTime    time.Time             `json:"create_time"`
+	UpdateTime    time.Time             `json:"update_time"`
 }
 
 func (t *TaskTemplate) ConvertToTask(ctx context.Context, factory task_strategy.TaskStrategyFactory) (*Task, error) {
-	task := &Task{
-		TaskName:      t.TemplateName,
-		TaskDesc:      t.TaskDesc,
-		TaskType:      t.TaskType,
-		NotifyChannel: t.NotifyChannel,
-		TaskStatus:    t.TaskStatus,
-		StrategyData:  t.StrategyData,
-	}
 
 	strategy, err := factory.CreateTaskStrategy(ctx, t.TaskType, t.StrategyData)
 	if err != nil {
 		return nil, err
 	}
-	task.Strategy = strategy
+	task := &Task{
+		TaskName:      t.TemplateName,
+		TaskDesc:      t.TaskDesc,
+		TaskType:      t.TaskType,
+		NotifyChannel: t.NotifyChannel,
+		TaskStatus:    common.TaskStatusRunning,
+		StrategyData:  t.StrategyData,
+		Strategy:      strategy,
+	}
 	return task, nil
 }

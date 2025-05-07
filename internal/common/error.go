@@ -8,4 +8,5 @@ var (
 	ErrAccountStatusDisable    = errors.New("account status disable")
 	ErrInvalidTaskType         = errors.New("invalid task type")
 	ErrInvalidColumnName       = errors.New("invalid column name")
+	ErrSendSmsFailed           = errors.New("send sms failed")
 )

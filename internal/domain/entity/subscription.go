@@ -1,7 +1,6 @@
 package entity
 
 import (
-	"strconv"
 	"time"
 )
 
@@ -20,6 +19,7 @@ func NewPaymentReceipt(rawData string) *PaymentReceipt {
 	}
 }
 
+/*
 func (r *PaymentReceipt) ParseFromAppleResponse(response AppleValidationResponse) error {
 	if len(response.LatestReceiptInfo) == 0 {
 		return ErrInvalidReceipt
@@ -45,4 +45,4 @@ func (r *PaymentReceipt) GetExpiryDate() (time.Time, error) {
 		return time.Time{}, ErrInvalidReceipt
 	}
 	return *r.expiryDate, nil
-}
+}*/

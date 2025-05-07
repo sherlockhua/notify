@@ -5,6 +5,7 @@ import (
 	"notify/internal/common"
 	"notify/internal/domain/entity"
 	"notify/internal/domain/repository"
+	"notify/internal/infra/notify"
 
 	"github.com/sherlockhua/koala/logs"
 )
@@ -15,15 +16,28 @@ type TaskService interface {
 	CreateTask(ctx context.Context, userId int64, task *entity.Task) error
 	DeleteTask(ctx context.Context, userId int64, taskId int64) error
 	TriggerTask(ctx context.Context) error
+	CreateTemplate(ctx context.Context, template *entity.TaskTemplate) error
+	GetTemplate(ctx context.Context, templateId int64) (*entity.TaskTemplate, error)
+	GetTemplateList(ctx context.Context, offset, size int32) ([]*entity.TaskTemplate, error)
+	UpdateTemplate(ctx context.Context, template *entity.TaskTemplate) error
+	DeleteTemplate(ctx context.Context, templateId int64) error
 }
 
 type taskServiceImp struct {
 	taskRepo       repository.TaskRepository
+	templateRepo   repository.TemplateRepository
 	accountService AccountService
+	notifyService  notify.Notify
 }
 
-func NewTaskService(taskRepo repository.TaskRepository, service AccountService) TaskService {
-	return &taskServiceImp{taskRepo: taskRepo, accountService: service}
+func NewTaskService(taskRepo repository.TaskRepository,
+	service AccountService, notifyService notify.Notify, templateRepo repository.TemplateRepository) TaskService {
+	return &taskServiceImp{
+		taskRepo:       taskRepo,
+		accountService: service,
+		notifyService:  notifyService,
+		templateRepo:   templateRepo,
+	}
 }
 
 func (s *taskServiceImp) GetTask(ctx context.Context, userId int64, taskId int64) (*entity.Task, error) {
@@ -106,4 +120,29 @@ func (s *taskServiceImp) processTimeReadyTask(ctx context.Context, task *entity.
 
 func (s *taskServiceImp) processBeforeTimeReadyTask(ctx context.Context, task *entity.Task) error {
 	return nil
+}
+
+func (s *taskServiceImp) CreateTemplate(ctx context.Context, template *entity.TaskTemplate) error {
+	logs.Debugf(ctx, "creating template, template:%+v", template)
+	return s.templateRepo.CreateTemplate(ctx, template)
+}
+
+func (s *taskServiceImp) GetTemplate(ctx context.Context, templateId int64) (*entity.TaskTemplate, error) {
+	logs.Debugf(ctx, "getting template, templateId:%d", templateId)
+	return s.templateRepo.GetTemplate(ctx, templateId)
+}
+
+func (s *taskServiceImp) GetTemplateList(ctx context.Context, offset, size int32) ([]*entity.TaskTemplate, error) {
+	logs.Debugf(ctx, "getting template list, offset:%d, size:%d", offset, size)
+	return s.templateRepo.GetTemplateList(ctx, offset, size, nil)
+}
+
+func (s *taskServiceImp) UpdateTemplate(ctx context.Context, template *entity.TaskTemplate) error {
+	logs.Debugf(ctx, "updating template, template:%+v", template)
+	return s.templateRepo.UpdateTemplate(ctx, template)
+}
+
+func (s *taskServiceImp) DeleteTemplate(ctx context.Context, templateId int64) error {
+	logs.Debugf(ctx, "deleting template, templateId:%d", templateId)
+	return s.templateRepo.DeleteTemplate(ctx, templateId)
 }
